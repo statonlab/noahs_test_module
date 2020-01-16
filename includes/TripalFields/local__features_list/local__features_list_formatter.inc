@@ -34,9 +34,17 @@ class local__features_list_formatter extends ChadoFieldFormatter {
     **/
 
   public function view(&$element, $entity_type, $entity, $langcode, $items, $display) {
-
     // Get the settings
     $settings = $display['settings'];
+    $feature_names = $items[0]['value'];
+    $element[0] =
+      [
+        "#type"=>"markup",
+        "#markup"=>theme('table',[
+        "header"=>['feature name'],
+        "rows"=>$feature_names
+        ])
+      ];
   }
 
     /**

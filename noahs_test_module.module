@@ -1,4 +1,3 @@
 <?php
 
 require_once "noahs_test_module.fields.inc";
-var_dump("sroeirjsieorj");

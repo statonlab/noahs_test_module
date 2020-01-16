@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @class
  * Purpose:
@@ -6,7 +7,8 @@
  * Data:
  * Assumptions:
  */
-class local__features_list extends ChadoField {
+class local__features_list extends ChadoField
+{
 
   // --------------------------------------------------------------------------
   //                     EDITABLE STATIC CONSTANTS
@@ -40,20 +42,20 @@ class local__features_list extends ChadoField {
   // changed.
   public static $default_settings = array(
     'storage' => 'field_chado_storage',
-     // It is expected that all fields set a 'value' in the load() function.
-     // In many cases, the value may be an associative array of key/value pairs.
-     // In order for Tripal to provide context for all data, the keys should
-     // be a controlled vocabulary term (e.g. rdfs:type). Keys in the load()
-     // function that are supported by the query() function should be
-     // listed here.
-     'searchable_keys' => array(),
+    // It is expected that all fields set a 'value' in the load() function.
+    // In many cases, the value may be an associative array of key/value pairs.
+    // In order for Tripal to provide context for all data, the keys should
+    // be a controlled vocabulary term (e.g. rdfs:type). Keys in the load()
+    // function that are supported by the query() function should be
+    // listed here.
+    'searchable_keys' => array(),
   );
 
   // Indicates the download formats for this field.  The list must be the
   // name of a child class of the TripalFieldDownloader.
   public static $download_formatters = array(
-     'TripalTabDownloader',
-     'TripalCSVDownloader',
+    'TripalTabDownloader',
+    'TripalCSVDownloader',
   );
 
   // Provide a list of instance specific settings. These can be access within
@@ -99,45 +101,65 @@ class local__features_list extends ChadoField {
   // the user but otherwise provides no data.
   public static $no_data = FALSE;
 
-   /**
-    * @see ChadoField::load()
-    *
-    **/
+  /**
+   * @see ChadoField::load()
+   *
+   **/
 
-  public function load($entity) {
+  public function load($entity)
+  {
 
     // ChadoFields automatically load the chado column specified in the
     // default settings above. If that is all you need then you don't even
     // need to implement this function. However, if you need to add any
     // additional data to be used in the display, you should add it here.
-    parent::load($entity);
+    $feature_names = [];
+    $query = chado_db_select('feature', 'u');
+    $query->fields('u', array('name'));
+    $query->condition('organism_id', $entity->chado_record->organism_id, '=');
+    $result = $query->execute();
+    while ($record = $result->fetchAssoc()) {
+      //if ($record['organism_id'] != 'admin' and $record['name'] != 'root' and $record['name'] != '')
+      $feature_names[] = [$record['name']];
+    }
+    $entity->local__features_list['und'][0] =
+      [
+        'value' => $feature_names
+      ];
+
+
+    //($feature_names);
+    //dpm($entity->chado_record->organism_id);
+    //dpm($entity->chado_record);
   }
 
 
+  /**
+   * @see ChadoField::query()
+   *
+   **/
 
-    /**
-    * @see ChadoField::query()
-    *
-    **/
-
-  public function query($query, $condition) {
+  public function query($query, $condition)
+  {
   }
 
-    /**
-    * @see ChadoField::queryOrder()
-    *
-    **/
+  /**
+   * @see ChadoField::queryOrder()
+   *
+   **/
 
-  public function queryOrder($query, $order) {
+  public function queryOrder($query, $order)
+  {
   }
 
 
-    /**
-    * @see ChadoField::elementInfo()
-    *
-    **/
-    
-  public function elementInfo() {
+  /**
+   * @see ChadoField::elementInfo()
+   *
+   **/
+
+  public function elementInfo()
+  {
     $field_term = $this->getFieldTermID();
     return array(
       $field_term => array(

@@ -33,6 +33,7 @@
  */
 function noahs_test_module_bundle_fields_info($entity_type, $bundle) {
   $fields = array();
+
   $my_data_table = 'organism';
   // Because we are expecting data housed in Chado we can use the 'data_table'
   // property of the bundle to determine if this bundle is really the one
@@ -60,6 +61,52 @@ function noahs_test_module_bundle_fields_info($entity_type, $bundle) {
     );
   }
 
+  if (isset($bundle->data_table) AND ($bundle->data_table == $my_data_table)) {
+    // First add my term.
+    tripal_insert_cvterm(array(
+      'id' => 'tripal:12345',
+      'name' => 'noahs_test_field_cvterm',
+      'cv_name' => 'organism',
+      'definition' => 'This is a test field. It should print organism name.',
+    ));
+
+    // Then describe the field defined by that term.
+    $field_name = 'tripal__noahs_test_field_cvterm';
+    $field_type = 'tripal__noahs_test_field_cvterm';
+    $fields[$field_name] = array(
+      'field_name' => $field_name,
+      'type' => $field_type,
+      'cardinality' => 1,
+      'locked' => FALSE,
+      'storage' => array(
+        'type' => 'field_chado_storage',
+      ),
+    );
+  }
+
+  $my_data_table = 'analysis';
+  if (isset($bundle->data_table) AND ($bundle->data_table == $my_data_table)) {
+    // First add my term.
+    tripal_insert_cvterm(array(
+      'id' => 'local:12345',
+      'name' => 'expression_features',
+      'cv_name' => 'local',
+      'definition' => 'Table of expression features.',
+    ));
+
+    // Then describe the field defined by that term.
+    $field_name = 'local__expression_features';
+    $field_type = 'local__expression_features';
+    $fields[$field_name] = array(
+      'field_name' => $field_name,
+      'type' => $field_type,
+      'cardinality' => 1,
+      'locked' => FALSE,
+      'storage' => array(
+        'type' => 'field_chado_storage',
+      ),
+    );
+  }
   return $fields;
 }
 
@@ -87,6 +134,7 @@ function noahs_test_module_bundle_fields_info($entity_type, $bundle) {
  */
 function noahs_test_module_bundle_instances_info($entity_type, $bundle) {
   $instances = array();
+
   $my_data_table = 'organism';
   if (isset($bundle->data_table) AND ($bundle->data_table == $my_data_table)) {
     $field_name = 'local__features_list';
@@ -122,5 +170,72 @@ function noahs_test_module_bundle_instances_info($entity_type, $bundle) {
 
   }
 
+  if (isset($bundle->data_table) AND ($bundle->data_table == $my_data_table)) {
+    $field_name = 'tripal__noahs_test_field_cvterm';
+    $field_type = 'tripal__noahs_test_field_cvterm';
+    $instances[$field_name] = array(
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'bundle' => $bundle->name,
+      'label' => 'Noahs Test Field',
+      'description' => 'This is a test field. It should print organism name.',
+      'required' => FALSE,
+      'settings' => array(
+        'term_vocabulary' => 'tripal',
+        'term_name' => 'noahs_test_field_cvterm',
+        'term_accession' => '12345',
+        'auto_attach' => FALSE,
+        'chado_table' => $bundle->data_table,
+        'chado_column' => 'organism_id',
+        'base_table' => $bundle->data_table,
+      ),
+      'widget' => array(
+        'type' => 'tripal__noahs_test_field_cvterm_widget',
+        'settings' => array(),
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'tripal__noahs_test_field_cvterm_formatter',
+          'settings' => array(),
+        ),
+      ),
+    );
+  }
+
+  $my_data_table = 'analysis';
+  if (isset($bundle->data_table) AND ($bundle->data_table == $my_data_table)) {
+    $field_name = 'local__expression_features';
+    $field_type = 'local__expression_features';
+    $instances[$field_name] =  array(
+      'field_name' => $field_name,
+      'entity_type' => $entity_type,
+      'bundle' => $bundle->name,
+      'label' => 'Expression Features',
+      'description' => 'Table of expression features.',
+      'required' => FALSE,
+      'settings' => array(
+        'term_vocabulary' => 'local',
+        'term_name' => 'expression_features',
+        'term_accession' => '12345',
+        'auto_attach' => FALSE,
+        'chado_table' => $bundle->data_table,
+        'chado_column' => 'organism_id',
+        'base_table' => $bundle->data_table,
+      ),
+      'widget' => array(
+        'type' => 'local__expression_features_widget',
+        'settings' => array(),
+      ),
+      'display' => array(
+        'default' => array(
+          'label' => 'hidden',
+          'type' => 'local__expression_features_formatter',
+          'settings' => array(),
+        ),
+      ),
+    );
+
+  }
   return $instances;
 }
